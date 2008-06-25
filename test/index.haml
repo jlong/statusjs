@@ -1,0 +1,21 @@
+!!!
+%html{html_attrs}
+  %head
+    %meta{"http-equiv"=>"Content-type", :content=>"text/html; charset=utf-8"}/
+    %title Status Message
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"/stylesheets/status.css"}/
+    %script{:src=>"/javascripts/prototype.js", :type=>"text/javascript"}
+    %script{:src=>"/javascripts/effects.js", :type=>"text/javascript"}
+    %script{:src=>"/javascripts/lowpro.js", :type=>"text/javascript"}
+    %script{:src=>"/javascripts/status.js", :type=>"text/javascript"}
+    %style{:type=>"text/css"}
+      :plain
+        body {
+          font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+          font-size: 80%;
+          background: url(/test/checkered.png);
+        }
+  %body
+    %a{:href=>"javascript: showStatus('Hello World&#8230;');"} Hello World&#8230;
+    %a{:href=>"javascript: setStatus('Changing status&#8230;');"} Change Status
+    %a{:href=>"javascript: hideStatus();"} Hide Status
