@@ -83,46 +83,53 @@ Status.FormBehavior = Behavior.create({
   }
 });
 
+Status.LinkBehavior = Behavior.create({
+  initialize: function() {
+    var attr = this.element.attributes['onclick_status']
+    if (attr) this.status = attr.value; 
+    if (this.status) this.element.observe('click', function() { showStatus(this.status) }.bind(this));
+  }
+});
+
 Status.Window = Class.create({
   initialize: function() {
     Status.preloadImages();
     this.buildWindow();
   },
-
+  
   buildWindow: function() {
-    this.element = $div({'class': 'status_window', style: 'display: none; padding: 0 ' + Status.CornerThickness + 'px; position: absolute'});
+    this.element = $table({className: 'status_window', style: 'display: none; position: absolute; border-collapse: collapse; padding: 0px; margin: 0px; z-index: 10000'});
+    var tbody = $tbody();
+    this.element.insert(tbody)
     
-    this.top = $div({style: 'background: url(' + Status.BackgroundImage + '); height: ' + Status.CornerThickness + 'px'});
-    this.element.insert(this.top);
+    var top_row = $tr();
+    top_row.insert($td({style: 'background: url(' + Status.TopLeftImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; padding: 0px'}));
+    top_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); height: ' + Status.CornerThickness + 'px; padding: 0px'}))
+    top_row.insert($td({style: 'background: url(' + Status.TopRightImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; padding: 0px'}));
+    tbody.insert(top_row);
     
-    var outer = $div({style: 'background: url(' + Status.BackgroundImage + '); margin: 0px -' + Status.CornerThickness + 'px; padding: 0px ' + Status.CornerThickness + 'px; position: relative'});
-    this.element.insert(outer);
+    var content_row = $tr();
+    content_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); width: ' + Status.CornerThickness + 'px; padding: 0px'}, ''));
+    this.content = $td({className: 'status_content', style: 'background: url(' + Status.BackgroundImage + '); padding: 0px ' + Status.CornerThickness + 'px'});
+    content_row.insert(this.content);
+    content_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); width: ' + Status.CornerThickness + 'px; padding: 0px'}, ''));
+    tbody.insert(content_row);
     
-    this.bottom = $div({style: 'background: url(' + Status.BackgroundImage + '); height: ' + Status.CornerThickness + 'px'});
-    this.element.insert(this.bottom);
-    
-    var topLeft = $div({style: 'background: url(' + Status.TopLeftImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; position: absolute; left: 0; top: -' + Status.CornerThickness + 'px'});
-    outer.insert(topLeft);
-    
-    var topRight = $div({style: 'background: url(' + Status.TopRightImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; position: absolute; right: 0; top: -' + Status.CornerThickness + 'px'});
-    outer.insert(topRight);
-    
-    var bottomLeft = $div({style: 'background: url(' + Status.BottomLeftImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; position: absolute; left: 0; bottom: -' + Status.CornerThickness + 'px'});
-    outer.insert(bottomLeft);
-    
-    var bottomRight = $div({style: 'background: url(' + Status.BottomRightImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; position: absolute; right: 0; bottom: -' + Status.CornerThickness + 'px'});
-    outer.insert(bottomRight);
-    
-    this.content = $div({'class': 'status_content'});
-    outer.insert(this.content);
-    
+    var bottom_row = $tr();
+    bottom_row.insert($td({style: 'background: url(' + Status.BottomLeftImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; padding: 0px'}));
+    bottom_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); height: ' + Status.CornerThickness + 'px; padding: 0px'}))
+    bottom_row.insert($td({style: 'background: url(' + Status.BottomRightImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; padding: 0px'}));
+    tbody.insert(bottom_row);
+
     this.spinner = $img({src: Status.SpinnerImage, width: Status.SpinnerImageWidth, height: Status.SpinnerImageHeight, alt: ''});
     this.status = $div()
     
-    var table = $table({border: 0, cellpadding: 0, cellspacing: 0},
-      $tr(
-        $td(this.spinner),
-        $td({style: 'padding-left: ' + Status.CornerThickness + 'px'}, this.status)
+    var table = $table({border: 0, cellpadding: 0, cellspacing: 0, style: 'table-layout: auto'},
+      $tbody(
+        $tr(
+          $td({style: 'width: ' + Status.SpinnerImageWidth + 'px'}, this.spinner),
+          $td({style: 'padding-left: ' + Status.CornerThickness + 'px'}, this.status)
+        )
       )
     );
     this.content.insert(table);
@@ -140,12 +147,6 @@ Status.Window = Class.create({
   },
   
   show: function(options) {
-    if (Prototype.Browser.IE) {
-      // IE fixes
-      var width = this.element.getWidth() - (Status.CornerThickness * 2);
-      this.top.setStyle("width:" + width + "px");
-      this.bottom.setStyle("width:" + width + "px");
-    }
     this.centerWindowInView();
     this.element.show();
   },
@@ -175,8 +176,8 @@ Status.Window = Class.create({
   }
 });
 
-// Setup the modal status window onload
-Event.observe(window, 'load', function() {
+// Setup the status window on dom loaded
+Event.observe(document, 'dom:loaded', function() {
   Status.window = new Status.Window();
 });
 
