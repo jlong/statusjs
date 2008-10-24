@@ -55,6 +55,11 @@ var Status = {
   Modal: true
 };
 
+Status.window = function() {
+  if (!this.statusWindow) this.statusWindow = new Status.Window();
+  return this.statusWindow;
+}
+
 Status.BackgroundImages = function() {
   return $A([
     Status.SpinnerImage,
@@ -178,42 +183,40 @@ Status.Window = Class.create({
     });
   },
   
-  _eventsForCapture: function() {
-    return $A(['click', 'keydown', 'keyup', 'mousedown', 'mouseover', 'mouseout', 'mouseup']);
-  },
-  
   _captureAllEvents: function() {
-    this.eventHandler = function(e) { e.stop() };
-    this._eventsForCapture().each(function(action) {
-      document.body.addEventListener(action, this.eventHandler, true) // Observe events during the capture phase, rather than the bubbling
-    }.bind(this));
+    var body = $$('body').first();
+    if (!this.mask) {
+      this.mask = $div();
+      body.insert(this.mask);
+    }
+    this.mask.absolutize();
+    this.mask.setStyle('background-color:white; top:0px; left:0px; z-index:100; height:' + body.getHeight() + 'px; width:' +  body.getWidth() + 'px');
+    this.mask.setOpacity(0.01);
+    this.mask.show();
   },
   
   _releaseEventCapture: function() {
-    this._eventsForCapture().each(function(action) {
-      document.body.removeEventListener(action, this.eventHandler, true)
-    }.bind(this));
+    this.mask.hide();
   }
 });
 
-// Setup the status window on dom loaded
 Event.observe(document, 'dom:loaded', function() {
-  Status.window = new Status.Window();
+  Status.preloadImages();
 });
 
 // Sets the status to string
 function setStatus(string) {
-  Status.window.setStatus(string);
-  if (Status.window.visible()) Status.window.centerWindowInView();
+  Status.window().setStatus(string);
+  if (Status.window().visible()) Status.window().centerWindowInView();
 }
 
 // Sets the status to string and shows the modal status window
 function showStatus(string) {
   setStatus(string);
-  Status.window.show();
+  Status.window().show();
 }
 
 // Hides the modal status window
 function hideStatus() {
-  Status.window.hide();
+  Status.window().hide();
 }
