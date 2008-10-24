@@ -51,7 +51,8 @@ var Status = {
   TopLeftImage: '/images/status_top_left.png',
   TopRightImage: '/images/status_top_right.png',
   BottomLeftImage: '/images/status_bottom_left.png',
-  BottomRightImage: '/images/status_bottom_right.png'
+  BottomRightImage: '/images/status_bottom_right.png',
+  Modal: true
 };
 
 Status.BackgroundImages = function() {
@@ -120,7 +121,7 @@ Status.Window = Class.create({
     bottom_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); height: ' + Status.CornerThickness + 'px; padding: 0px'}))
     bottom_row.insert($td({style: 'background: url(' + Status.BottomRightImage + '); height: ' + Status.CornerThickness + 'px; width: ' + Status.CornerThickness + 'px; padding: 0px'}));
     tbody.insert(bottom_row);
-
+    
     this.spinner = $img({src: Status.SpinnerImage, width: Status.SpinnerImageWidth, height: Status.SpinnerImageHeight, alt: ''});
     this.status = $div()
     
@@ -148,12 +149,12 @@ Status.Window = Class.create({
   
   show: function(options) {
     this.centerWindowInView();
-    this._captureAllEvents();
+    if (Status.Modal) this._captureAllEvents();
     this.element.show();
   },
   
   hide: function() {
-    this._releaseEventCapture();
+    if (Status.Modal) this._releaseEventCapture();
     this.element.hide();
   },
   
