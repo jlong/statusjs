@@ -148,10 +148,12 @@ Status.Window = Class.create({
   
   show: function(options) {
     this.centerWindowInView();
+    this._captureAllEvents();
     this.element.show();
   },
   
   hide: function() {
+    this._releaseEventCapture();
     this.element.hide();
   },
   
@@ -173,6 +175,23 @@ Status.Window = Class.create({
       left: parseInt(offsets.left + (document.viewport.getWidth() - this.element.getWidth()) / 2) + 'px',
       top: parseInt(offsets.top + (document.viewport.getHeight() - this.element.getHeight()) / 2.2) + 'px'
     });
+  },
+  
+  _eventsForCapture: function() {
+    return $A(['click', 'keydown', 'keyup', 'mousedown', 'mouseover', 'mouseout', 'mouseup']);
+  },
+  
+  _captureAllEvents: function() {
+    this.eventHandler = function(e) { e.stop() };
+    this._eventsForCapture().each(function(action) {
+      document.body.addEventListener(action, this.eventHandler, true) // Observe events during the capture phase, rather than the bubbling
+    }.bind(this));
+  },
+  
+  _releaseEventCapture: function() {
+    this._eventsForCapture().each(function(action) {
+      document.body.removeEventListener(action, this.eventHandler, true)
+    }.bind(this));
   }
 });
 
