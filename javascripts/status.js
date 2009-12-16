@@ -55,7 +55,9 @@ var Status = {
   MessageFontFamily: '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif',
   MessageFontSize: '14px',
   MessageColor: '#e5e5e5',
-  Modal: false
+  Modal: false,
+  ModalOverlayColor: 'white',
+  ModalOverlayOpacity: 0.4
 };
 
 Status.window = function() {
@@ -157,13 +159,12 @@ Status.Window = Class.create({
   
   show: function(modal) {
     this.centerWindowInView();
-    this.modal = modal;
-    if (this.modal || Status.Modal) this._showMask();
+    if (modal || Status.Modal) this._showModalOverlay();
     this.element.show();
   },
   
   hide: function() {
-    if (this.modal || Status.Modal) this._hideMask();
+    this._hideModalOverlay();
     this.element.hide();
   },
   
@@ -187,19 +188,19 @@ Status.Window = Class.create({
     });
   },
   
-  _showMask: function() {
-    if (!this.mask) {
-      this.mask = $div({style: 'position: absolute; background-color: white; top: 0px; left: 0px; z-index: 100;'});
-      this.mask.setStyle('position: fixed');
-      this.mask.setOpacity('0.4');
-      document.body.insert(this.mask);
+  _showModalOverlay: function() {
+    if (!this.overlay) {
+      this.overlay = $div({style: 'position: absolute; background-color: ' + Status.ModalOverlayColor + '; top: 0px; left: 0px; z-index: 100;'});
+      this.overlay.setStyle('position: fixed');
+      this.overlay.setOpacity(Status.ModalOverlayOpacity);
+      document.body.insert(this.overlay);
     }
-    this.mask.setStyle('height: ' + document.viewport.getHeight() + 'px; width: ' + document.viewport.getWidth() + 'px;');
-    this.mask.show();
+    this.overlay.setStyle('height: ' + document.viewport.getHeight() + 'px; width: ' + document.viewport.getWidth() + 'px;');
+    this.overlay.show();
   },
   
-  _hideMask: function() {
-    this.mask.hide();
+  _hideModalOverlay: function() {
+    if (this.overlay) this.overlay.hide();
   }
 });
 
