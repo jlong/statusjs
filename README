@@ -14,7 +14,10 @@ a status message on submit for:
 
   <form onsubmit_status="Saving changes" ...>
 
-Based on code from popup.js.
+Some code taken from popup.js.
+
+For more information, see:
+http://wiseheartdesign.com/articles/2009/12/16/statusjs-work-well-with-messages/
 
 --------------------------------------------------------------------------
 
