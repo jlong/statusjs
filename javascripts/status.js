@@ -52,7 +52,10 @@ var Status = {
   TopRightImage: '/images/status_top_right.png',
   BottomLeftImage: '/images/status_bottom_left.png',
   BottomRightImage: '/images/status_bottom_right.png',
-  Modal: true
+  MessageFontFamily: '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif',
+  MessageFontSize: '14px',
+  MessageColor: '#e5e5e5',
+  Modal: false
 };
 
 Status.window = function() {
@@ -104,7 +107,7 @@ Status.Window = Class.create({
   },
   
   buildWindow: function() {
-    this.element = $table({className: 'status_window', style: 'display: none; position: absolute; border-collapse: collapse; padding: 0px; margin: 0px; z-index: 10000'});
+    this.element = $table({'class': 'status_window', style: 'display: none; position: absolute; border-collapse: collapse; padding: 0px; margin: 0px; z-index: 10000'});
     var tbody = $tbody();
     this.element.insert(tbody)
     
@@ -116,7 +119,7 @@ Status.Window = Class.create({
     
     var content_row = $tr();
     content_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); width: ' + Status.CornerThickness + 'px; padding: 0px'}, ''));
-    this.content = $td({className: 'status_content', style: 'background: url(' + Status.BackgroundImage + '); padding: 0px ' + Status.CornerThickness + 'px'});
+    this.content = $td({'class': 'status_content', style: 'background: url(' + Status.BackgroundImage + '); padding: 0px ' + Status.CornerThickness + 'px'});
     content_row.insert(this.content);
     content_row.insert($td({style: 'background: url(' + Status.BackgroundImage + '); width: ' + Status.CornerThickness + 'px; padding: 0px'}, ''));
     tbody.insert(content_row);
@@ -128,7 +131,7 @@ Status.Window = Class.create({
     tbody.insert(bottom_row);
     
     this.spinner = $img({src: Status.SpinnerImage, width: Status.SpinnerImageWidth, height: Status.SpinnerImageHeight, alt: ''});
-    this.status = $div()
+    this.status = $div({'class': 'status_message', style: 'color: ' + Status.MessageColor + '; font-family: ' + Status.MessageFontFamily + '; font-size: ' + Status.MessageFontSize});
     
     var table = $table({border: 0, cellpadding: 0, cellspacing: 0, style: 'table-layout: auto'},
       $tbody(
@@ -152,14 +155,15 @@ Status.Window = Class.create({
     return this.status.innerHTML();
   },
   
-  show: function(options) {
+  show: function(modal) {
     this.centerWindowInView();
-    if (Status.Modal) this._captureAllEvents();
+    this.modal = modal;
+    if (this.modal || Status.Modal) this._showMask();
     this.element.show();
   },
   
   hide: function() {
-    if (Status.Modal) this._releaseEventCapture();
+    if (this.modal || Status.Modal) this._hideMask();
     this.element.hide();
   },
   
@@ -183,19 +187,18 @@ Status.Window = Class.create({
     });
   },
   
-  _captureAllEvents: function() {
-    var body = $$('body').first();
+  _showMask: function() {
     if (!this.mask) {
-      this.mask = $div();
-      body.insert(this.mask);
+      this.mask = $div({style: 'position: absolute; background-color: white; top: 0px; left: 0px; z-index: 100;'});
+      this.mask.setStyle('position: fixed');
+      this.mask.setOpacity('0.4');
+      document.body.insert(this.mask);
     }
-    this.mask.absolutize();
-    this.mask.setStyle('background-color:white; top:0px; left:0px; z-index:100; height:' + body.getHeight() + 'px; width:' +  body.getWidth() + 'px');
-    this.mask.setOpacity(0.01);
+    this.mask.setStyle('height: ' + document.viewport.getHeight() + 'px; width: ' + document.viewport.getWidth() + 'px;');
     this.mask.show();
   },
   
-  _releaseEventCapture: function() {
+  _hideMask: function() {
     this.mask.hide();
   }
 });
@@ -211,9 +214,9 @@ function setStatus(string) {
 }
 
 // Sets the status to string and shows the modal status window
-function showStatus(string) {
+function showStatus(string, modal) {
   setStatus(string);
-  Status.window().show();
+  Status.window().show(modal);
 }
 
 // Hides the modal status window
