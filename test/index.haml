@@ -3,11 +3,10 @@
   %head
     %meta{"http-equiv"=>"Content-type", :content=>"text/html; charset=utf-8"}/
     %title Status Message
-    %link{:rel=>"stylesheet", :rel=>"stylesheet", :type=>"text/css", :href=>"/stylesheets/status.css", :media=>"all"}/
-    %script{:src=>"/javascripts/prototype.js", :type=>"text/javascript"}
-    %script{:src=>"/javascripts/effects.js", :type=>"text/javascript"}
-    %script{:src=>"/javascripts/lowpro.js", :type=>"text/javascript"}
-    %script{:src=>"/javascripts/status.js", :type=>"text/javascript"}
+    %script{:src=>"/src/javascripts/prototype.js", :type=>"text/javascript"}
+    %script{:src=>"/src/javascripts/effects.js", :type=>"text/javascript"}
+    %script{:src=>"/src/javascripts/lowpro.js", :type=>"text/javascript"}
+    %script{:src=>"/src/javascripts/status.js", :type=>"text/javascript"}
     %style{:type=>"text/css"}
       :plain
         body {
@@ -16,7 +15,13 @@
           background: url(/test/checkered.png);
         }
     :javascript
-      Status.ModalOverlayColor = 'white';
+      Status.SpinnerImage     = "/src/images/status_spinner.gif";
+      Status.BackgroundImage  = "/src/images/status_background.png";
+      Status.TopLeftImage     = "/src/images/status_top_left.png";
+      Status.TopRightImage    = "/src/images/status_top_right.png";
+      Status.BottomLeftImage  = "/src/images/status_bottom_left.png";
+      Status.BottomRightImage = "/src/images/status_bottom_right.png";
+      
   %body
     %a{:href=>"javascript: showStatus('Hello World&#8230;');"} Hello World&#8230;
     %a{:href=>"javascript: setStatus('Changing status&#8230;');"} Change Status
